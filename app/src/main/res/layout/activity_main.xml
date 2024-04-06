@@ -14,6 +14,7 @@
         android:layout_height="match_parent" />
 
     <Button
+        android:id="@+id/btTakePhoto"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:backgroundTint="@color/white"
