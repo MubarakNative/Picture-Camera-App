@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -86,7 +87,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    // todo: Show the captured image to the user
+                    val path = "Image saved at: ${output.savedUri}"
+                    Toast.makeText(this@MainActivity, path, Toast.LENGTH_SHORT).show()
                 }
             }
         )
