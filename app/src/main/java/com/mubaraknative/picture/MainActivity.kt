@@ -8,6 +8,9 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
@@ -15,6 +18,10 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.LifecycleCameraController
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mubaraknative.picture.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
@@ -29,13 +36,24 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+       WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.btTakePhoto) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams>{
+                bottomMargin = insets.bottom
+        }
+            WindowInsetsCompat.CONSUMED
+        }
+
+
         if (allPermissionsGranted()) {
             executeCamera()
         } else { // request permission
             activityResultLauncher.launch(permissions)
         }
 
-        binding.btTakePhoto.setOnClickListener {
+        binding.btTakePhoto.setOnClickListener{
             takePhoto()
         }
 
@@ -69,7 +87,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    // todo: Show the captured image to the user
+                    val path = "Image saved at: ${output.savedUri}"
+                    Toast.makeText(this@MainActivity, path, Toast.LENGTH_SHORT).show()
                 }
             }
         )
