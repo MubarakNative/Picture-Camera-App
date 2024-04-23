@@ -21,8 +21,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.mubaraknative.picture.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -36,17 +38,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-       WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.btTakePhoto) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams>{
-                bottomMargin = insets.bottom
-        }
-            WindowInsetsCompat.CONSUMED
-        }
-
-
         if (allPermissionsGranted()) {
             executeCamera()
         } else { // request permission
@@ -56,7 +47,20 @@ class MainActivity : AppCompatActivity() {
         binding.btTakePhoto.setOnClickListener{
             takePhoto()
         }
+        binding.ivSwitchCamera.setOnClickListener {
+            switchCamera()
+        }
+    }
 
+    override fun onResume() {
+        super.onResume()
+            binding.main.postDelayed({
+                hideSystemUI()
+            }, 500L)
+    }
+
+    private fun switchCamera() {
+       // todo: switch between camera
     }
 
     private fun takePhoto() {
@@ -83,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
-                    // todo: display error msg
+                    Snackbar.make(binding.root,R.string.image_capture_failed,Snackbar.LENGTH_SHORT).show()
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
@@ -154,6 +158,14 @@ class MainActivity : AppCompatActivity() {
             }
             .setCancelable(false)
         dialog.show()
+    }
+
+    private fun hideSystemUI() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, binding.main).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 
 }
